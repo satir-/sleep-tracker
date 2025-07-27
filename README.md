@@ -25,7 +25,6 @@ $ docker-compose up --build
 
 ### API:
 #### sleep-log
-Default time for stack to persist - __24h__
 
 * Add new sleep record
 ```bash
