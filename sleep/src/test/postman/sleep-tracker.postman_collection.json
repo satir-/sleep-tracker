@@ -1,0 +1,96 @@
+{
+	"info": {
+		"_postman_id": "d25c09c3-174f-4247-a725-b97a1ce51e5b",
+		"name": "sleep-tracker",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "7129806"
+	},
+	"item": [
+		{
+			"name": "sleep-log",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"bedDateTime\": \"2025-07-27T01:15:32\",\n    \"wakeDateTime\": \"2025-07-27T09:45:27\",\n    \"mood\": \"OK\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}/sleep-log",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"sleep-log"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "sleep-log/last",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"date\": \"2025-07-27\",\n    \"bedTime\": \"01:15:32\",\n    \"wakeTime\": \"09:45:27\",\n    \"mood\": \"OK\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}/sleep-log/last",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"sleep-log",
+						"last"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "sleep-log/average",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"date\": \"2025-07-27\",\n    \"bedTime\": \"01:15:32\",\n    \"wakeTime\": \"09:45:27\",\n    \"mood\": \"OK\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}/sleep-log/average",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"sleep-log",
+						"average"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

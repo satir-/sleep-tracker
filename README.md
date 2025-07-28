@@ -39,3 +39,9 @@ $ GET /sleep-log/last
 ```bash
 $ GET /sleep-log/average
 ```
+
+### Test:
+
+One can import Postman collection and environment in order to test API routes live.
+
+The project already contains SQL migration with test data, that should be applied automatically, during start up.
