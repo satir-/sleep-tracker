@@ -1,8 +1,7 @@
 package com.noom.sleep.model
 
 import com.noom.sleep.dto.Mood
-import java.time.LocalDate
-import java.time.LocalTime
+import java.time.LocalDateTime
 import javax.persistence.*
 
 @Entity
@@ -12,14 +11,11 @@ data class SleepLog(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0,
 
-    // TODO: Remove hardcode
-    val userId: Long = 1, // Hardcoded for now
+    val userId: Long = 1,
 
-    val date: LocalDate = LocalDate.now(),
+    val bedDateTime: LocalDateTime = LocalDateTime.now(),
 
-    val bedTime: LocalTime = LocalTime.MIDNIGHT,
-
-    val wakeTime: LocalTime = LocalTime.MIDNIGHT,
+    val wakeDateTime: LocalDateTime = LocalDateTime.now(),
 
     val totalTimeMinutes: Long = 0,
 

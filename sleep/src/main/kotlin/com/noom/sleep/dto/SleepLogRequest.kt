@@ -1,12 +1,10 @@
 package com.noom.sleep.dto
 
-import java.time.LocalDate
-import java.time.LocalTime
+import java.time.LocalDateTime
 
 data class SleepLogRequest(
-    val date: LocalDate,
-    val bedTime: LocalTime,
-    val wakeTime: LocalTime,
+    val bedDateTime: LocalDateTime,
+    val wakeDateTime: LocalDateTime,
     val mood: Mood
 )
 

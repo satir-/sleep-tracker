@@ -7,7 +7,7 @@ import com.noom.sleep.repository.SleepLogRepository
 
 import org.springframework.stereotype.Service
 import java.time.Duration
-import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.LocalTime
 
 @Service
@@ -16,16 +16,18 @@ class SleepLogService(
 ) {
 
     fun createSleepLog(request: SleepLogRequest): SleepLog {
-        //TODO: Consider go-to-bed and wake time have the same day (use timestamp?)
         val totalTime = Duration.between(
-            request.bedTime.atDate(request.date),
-            request.wakeTime.atDate(request.date.plusDays(1))
+            request.bedDateTime,
+            request.wakeDateTime
         ).toMinutes()
 
+        if (totalTime <= 0) {
+            throw IllegalArgumentException("Wake time must be after bed time")
+        }
+
         val sleepLog = SleepLog(
-            date = request.date,
-            bedTime = request.bedTime,
-            wakeTime = request.wakeTime,
+            bedDateTime = request.bedDateTime,
+            wakeDateTime = request.wakeDateTime,
             totalTimeMinutes = totalTime,
             mood = request.mood
         )
@@ -34,20 +36,22 @@ class SleepLogService(
     }
 
     fun getLastSleepLog(userId: Long = 1): SleepLog? {
-        return sleepLogRepository.findFirstByUserIdOrderByDateDesc(userId)
+        // Use bedDateTime for filtering
+        return sleepLogRepository.findFirstByUserIdOrderByBedDateTimeDesc(userId)
     }
 
     fun get30DayAverage(userId: Long = 1): SleepAverageResponse? {
-        val today = LocalDate.now()
-        val thirtyDaysAgo = LocalDate.now().minusDays(30)
+        val today = LocalDateTime.now()
+        val thirtyDaysAgo = today.minusDays(30)
 
-        val logs = sleepLogRepository.findAllByUserIdAndDateAfter(userId, dateAfter = thirtyDaysAgo)
+        // Use bedDateTime for filtering
+        val logs = sleepLogRepository.findAllByUserIdAndBedDateTimeAfter(userId, thirtyDaysAgo)
 
         if (logs.isEmpty()) return null
 
         val avgTotalTime = logs.map { it.totalTimeMinutes }.average()
-        val avgBedTime = logs.map { it.bedTime.toSecondOfDay() }.average().toInt()
-        val avgWakeTime = logs.map { it.wakeTime.toSecondOfDay() }.average().toInt()
+        val avgBedTime = logs.map { it.bedDateTime.toLocalTime().toSecondOfDay() }.average().toInt()
+        val avgWakeTime = logs.map { it.wakeDateTime.toLocalTime().toSecondOfDay() }.average().toInt()
 
         val moodFrequencies = logs.groupingBy { it.mood }.eachCount()
 
