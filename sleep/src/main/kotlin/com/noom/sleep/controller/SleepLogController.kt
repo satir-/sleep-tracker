@@ -24,12 +24,16 @@ class SleepLogController(
     @GetMapping("/last")
     fun getLastNightLog(): ResponseEntity<Any> {
         val result = sleepLogService.getLastSleepLog()
-        return ResponseEntity.ok(result)
+        return result?.let {
+            ResponseEntity.ok(it)
+        } ?: ResponseEntity.status(404).body(mapOf("message" to "No sleep log found"))
     }
 
     @GetMapping("/average")
     fun get30DayAverage(): ResponseEntity<Any> {
         val result = sleepLogService.get30DayAverage()
-        return ResponseEntity.ok(result)
+        return result?.let {
+            ResponseEntity.ok(it)
+        } ?: ResponseEntity.status(404).body(mapOf("message" to "No sleep data for last 30 days"))
     }
 }

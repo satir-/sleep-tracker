@@ -1,5 +1,6 @@
 package com.noom.sleep.service
 
+import com.noom.sleep.dto.SleepAverageResponse
 import com.noom.sleep.dto.SleepLogRequest
 import com.noom.sleep.model.SleepLog
 import com.noom.sleep.repository.SleepLogRepository
@@ -32,17 +33,17 @@ class SleepLogService(
         return sleepLogRepository.save(sleepLog)
     }
 
-    fun getLastSleepLog(): SleepLog? {
-        // TODO: Remove hardcode
-        return sleepLogRepository.findFirstByUserIdOrderByDateDesc(userId = 1)
+    fun getLastSleepLog(userId: Long = 1): SleepLog? {
+        return sleepLogRepository.findFirstByUserIdOrderByDateDesc(userId)
     }
 
-    fun get30DayAverage(): Map<String, Any> {
+    fun get30DayAverage(userId: Long = 1): SleepAverageResponse? {
+        val today = LocalDate.now()
         val thirtyDaysAgo = LocalDate.now().minusDays(30)
-        // TODO: Remove hardcode
-        val logs = sleepLogRepository.findAllByUserIdAndDateAfter(userId = 1, dateAfter = thirtyDaysAgo)
 
-        if (logs.isEmpty()) return mapOf("message" to "No data available")
+        val logs = sleepLogRepository.findAllByUserIdAndDateAfter(userId, dateAfter = thirtyDaysAgo)
+
+        if (logs.isEmpty()) return null
 
         val avgTotalTime = logs.map { it.totalTimeMinutes }.average()
         val avgBedTime = logs.map { it.bedTime.toSecondOfDay() }.average().toInt()
@@ -50,12 +51,12 @@ class SleepLogService(
 
         val moodFrequencies = logs.groupingBy { it.mood }.eachCount()
 
-        return mapOf(
-            "range" to "$thirtyDaysAgo to ${LocalDate.now()}",
-            "averageTotalTimeInBedMinutes" to avgTotalTime,
-            "averageBedTime" to LocalTime.ofSecondOfDay(avgBedTime.toLong()),
-            "averageWakeTime" to LocalTime.ofSecondOfDay(avgWakeTime.toLong()),
-            "moodFrequencies" to moodFrequencies
+        return SleepAverageResponse(
+            "$thirtyDaysAgo to $today",
+            avgTotalTime,
+            LocalTime.ofSecondOfDay(avgBedTime.toLong()),
+            LocalTime.ofSecondOfDay(avgWakeTime.toLong()),
+            moodFrequencies
         )
     }
 }
