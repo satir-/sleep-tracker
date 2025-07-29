@@ -1,47 +1,74 @@
 # Sleep Tracker
-Kotlin + Spring + PostgreSQL - implementation of the test API for the sleep record writing/reading functionality:
+![Coverage](https://img.shields.io/badge/Coverage-88%25-brightgreen)
+
+Kotlin + Spring + PostgreSQL implementation of a simple Sleep Tracker API:
 * create the sleep log for the last night;
 * fetch information about the last night's sleep;
 * get the last 30-day averages
 
-### Preconditions:
+### Requirements
+- JDK 11+ (SpringBoot 2.7)
+- Docker & Docker Compose
+- Gradle 8.4
+- PostgreSQL (via Docker)
 
-One may have to specify SpringBoot context manually.
-
-E.g. in Intellij IDEA, open **Project Structure** | **Project Settings** | **Modules** | **Add** -> **Import module**.
+### IntelliJ Setup (Optional)
+If IntelliJ doesn't detect the Spring Boot context:
+1. Go to **File > Project Structure > Modules**.
+2. Click **+ Add** → **Import Module**.
+3. Select the root directory containing `build.gradle`.
 
 IDE should autodetect **build.gradle** file with all project necessary context and dependencies.
 
 ### Usage:
+
 General start up
+
 ```bash
 $ docker-compose up
 ```
 
 To build and run
+
 ```bash
 $ docker-compose up --build
 ```
 
 ### API:
-#### sleep-log
 
-* Add new sleep record
-```bash
-$ POST {BODY} /sleep-log
+#### `POST /sleep-log`
+Create a new sleep log.
+
+**Request Body:**
+```json
+{
+  "bedDateTime": "2025-07-28T23:00:00",
+  "wakeDateTime": "2025-07-29T07:00:00",
+  "mood": "GOOD"
+}
 ```
-Where __{BODY}__ - `application/JSON` type.
-* Get last logged sleep record
-```bash
-$ GET /sleep-log/last
-```
-* Get an averaged sleep record value (within 30-days)
-```bash
-$ GET /sleep-log/average
-```
+
+#### `GET /sleep-log/last`
+
+Returns the most recent sleep log.
+
+#### `GET /sleep-log/average`
+
+Returns average sleep stats for the last 30 days.
 
 ### Test:
+#### Unit tests
+```bash
+$ ./gradlew test
+```
+To check coverage
+```bash
+$ ./gradlew check
+```
 
-One can import Postman collection and environment in order to test API routes live.
+A full report is available at `build/reports/jacoco/test/html/index.html`
 
-The project already contains SQL migration with test data, that should be applied automatically, during start up.
+#### Postman
+Import the Postman collection and environment (from `sleep/src/test/postman`) to test the API routes live.
+
+The project includes SQL migrations with test data that apply automatically on startup.

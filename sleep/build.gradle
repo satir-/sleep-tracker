@@ -5,6 +5,7 @@ plugins {
     id 'io.spring.dependency-management' version '1.0.15.RELEASE'
     id 'org.jetbrains.kotlin.jvm' version '1.6.21'
     id 'org.jetbrains.kotlin.plugin.spring' version '1.6.21'
+    id 'jacoco'
 }
 
 group = 'com.noom'
@@ -28,6 +29,8 @@ dependencies {
     implementation 'org.jetbrains.kotlin:kotlin-reflect'
     runtimeOnly 'org.postgresql:postgresql'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'io.mockk:mockk:1.13.7'
+    testImplementation("com.ninja-squad:springmockk:3.0.1")
 }
 
 tasks.withType(KotlinCompile) {
@@ -43,4 +46,58 @@ tasks.named('bootBuildImage') {
 
 tasks.named('test') {
     useJUnitPlatform()
+    finalizedBy(tasks.jacocoTestReport) // generates report after tests
+}
+
+// Generate coverage report
+tasks.jacocoTestReport {
+    dependsOn(tasks.test)
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+    }
+}
+
+// Set a hard coverage threshold
+tasks.jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                minimum = "0.80".toBigDecimal() // 80%
+            }
+        }
+    }
+}
+
+//Custom script to add report numbers to Console, for convenience
+tasks.register('printCoverage') {
+    group = 'verification'
+    description = 'Prints JaCoCo line coverage from HTML report to console'
+
+    doLast {
+        def htmlFile = project.layout.buildDirectory.file("reports/jacoco/test/html/index.html").get().asFile
+
+        if (!htmlFile.exists()) {
+            println "❌ JaCoCo HTML report not found: ${htmlFile.path}"
+            return
+        }
+
+        def content = htmlFile.text
+
+        def matcher = content =~ /<td>Total<\/td><td class="bar">(\d+) of (\d+)<\/td><td class="ctr2">(\d+)%<\/td>/
+        if (matcher.find()) {
+            def missed = matcher.group(1).toInteger()
+            def total = matcher.group(2).toInteger()
+            def percent = matcher.group(3).toInteger()
+
+            println "\n✅ Total Line Coverage: ${percent}% (${total - missed} of ${total} instructions covered)\n"
+        } else {
+            println "⚠️ Could not parse HTML coverage data."
+        }
+    }
+}
+
+tasks.check {
+    dependsOn(tasks.jacocoTestCoverageVerification) // check the minimum tests coverage
+    finalizedBy(tasks.printCoverage) // adds coverage results to console
 }
